@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository; // try to use @Autowire instead @RequiredArgsConstructor
     private final RoleRepository roleRepository;
 
