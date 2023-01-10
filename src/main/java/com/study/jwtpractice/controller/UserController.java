@@ -40,6 +40,7 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getUsers() {
+        log.info("");
         return ResponseEntity.ok().body(userService.getUsers());
     }
 

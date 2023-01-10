@@ -6,6 +6,7 @@ import com.study.jwtpractice.repository.RoleRepository;
 import com.study.jwtpractice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +20,13 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository; // try to use @Autowire instead @RequiredArgsConstructor
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
     public User saveUser(User user) {
         log.info("Saving new user {} to the database", user.getName());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -40,7 +43,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true) // not necessary, just for testing
     public List<User> getUsers() {
         log.info("Fetching all users");
         return userRepository.findAll();

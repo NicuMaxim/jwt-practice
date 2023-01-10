@@ -15,9 +15,13 @@ import java.util.ArrayList;
 @SpringBootApplication
 public class JwtPracticeApplication {
 
+	// reference video lesson: https://youtu.be/VVn9OG9nfH0
+
 	public static void main(String[] args) {
 		SpringApplication.run(JwtPracticeApplication.class, args);
 	}
+
+	// TODO: create a permanent database instead of initializing it at each application run
 
 	@Bean
 	CommandLineRunner run(UserService userService) {
@@ -26,8 +30,8 @@ public class JwtPracticeApplication {
 			userService.saveRole(new Role(null, "ROLE_USER"));
 			userService.saveRole(new Role(null, "ROLE_ADMIN"));
 
-			userService.saveUser(new User(null, "Max", "fe_ax", new ArrayList<>()));
-			userService.saveUser(new User(null, "Sasha", "vegan_appetite", new ArrayList<>()));
+			userService.saveUser(new User(null, "Max", "fe_ax", "pass", new ArrayList<>()));
+			userService.saveUser(new User(null, "Sasha", "vegan_appetite", "pass", new ArrayList<>()));
 
 			userService.addRoleToUser("fe_ax", "ROLE_USER");
 			userService.addRoleToUser("fe_ax", "ROLE_ADMIN");
