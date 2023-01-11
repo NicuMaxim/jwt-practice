@@ -53,6 +53,7 @@ public class SecurityConfig {
         http
                 .httpBasic().and()
                 .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/api/token/refresh/**").permitAll()
                         .requestMatchers(GET, "/api/**").hasAnyRole("USER", "ADMIN", "SUPER")
                         .requestMatchers(POST,"/api/user/save", "/api/role/save", "/api/role/addtouser").hasRole("ADMIN")
                         .anyRequest().authenticated()
