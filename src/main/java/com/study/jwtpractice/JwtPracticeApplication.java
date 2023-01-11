@@ -33,7 +33,7 @@ public class JwtPracticeApplication {
 			userService.saveUser(new User(null, "Max", "fe_ax", "pass", new ArrayList<>()));
 			userService.saveUser(new User(null, "Sasha", "vegan_appetite", "pass", new ArrayList<>()));
 
-			userService.addRoleToUser("fe_ax", "ROLE_USER");
+			//userService.addRoleToUser("fe_ax", "ROLE_USER");
 			userService.addRoleToUser("fe_ax", "ROLE_ADMIN");
 			userService.addRoleToUser("vegan_appetite", "ROLE_USER");
 

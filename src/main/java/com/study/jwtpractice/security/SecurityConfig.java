@@ -10,14 +10,16 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -47,13 +49,14 @@ public class SecurityConfig {
 
         http.csrf().disable();
         http.cors();
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement().sessionCreationPolicy(STATELESS);
         http
-                .httpBasic(withDefaults())
+                .httpBasic().and()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/user/save", "/api/role/save", "/api/role/addtouser").hasRole("ADMIN")
-                        .requestMatchers("/api/**").hasRole("USER")
+                        .requestMatchers(GET, "/api/**").hasAnyRole("USER", "ADMIN", "SUPER")
+                        .requestMatchers(POST,"/api/user/save", "/api/role/save", "/api/role/addtouser").hasRole("ADMIN")
+                        .anyRequest().authenticated()
+
                 )
                 .formLogin()
                         .permitAll()
@@ -62,6 +65,7 @@ public class SecurityConfig {
                 .logout().permitAll();
 
         http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
+        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
