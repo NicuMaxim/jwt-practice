@@ -1,5 +1,7 @@
 package com.study.jwtpractice.security;
 
+import com.study.jwtpractice.filter.CustomAuthenticationFilter;
+import com.study.jwtpractice.filter.CustomAuthorizationFilter;
 import com.study.jwtpractice.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,7 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        //TODO Modify security configurations
         http.csrf().disable();
         http.cors();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
@@ -71,6 +74,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    //TODO Find out how to use cors
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -1,4 +1,4 @@
-package com.study.jwtpractice.security;
+package com.study.jwtpractice.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -67,9 +67,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         log.info("Access_token was created for user {}: {}", user.getUsername(), access_token);
         log.info("Refresh_token was created for user {}: {}", user.getUsername(), refresh_token);
-
-//        response.setHeader("access_token", access_token);
-//        response.setHeader("refresh_token", refresh_token);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token", access_token);

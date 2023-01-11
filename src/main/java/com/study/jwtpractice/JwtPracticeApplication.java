@@ -21,8 +21,6 @@ public class JwtPracticeApplication {
 		SpringApplication.run(JwtPracticeApplication.class, args);
 	}
 
-	// TODO: create a permanent database instead of initializing it at each application run
-
 	@Bean
 	CommandLineRunner run(UserService userService) {
 		return args -> {

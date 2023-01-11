@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.jwtpractice.model.Role;
 import com.study.jwtpractice.model.User;
 import com.study.jwtpractice.service.UserServiceImpl;
+import com.study.jwtpractice.utility.RoleToUserForm;
+import com.study.jwtpractice.utility.Utility;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -66,15 +67,13 @@ public class UserController {
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        //TODO move this logic to Utility class
+        //TODO move this logic to Utility class and to Service class
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 
             try {
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-                JWTVerifier verifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = verifier.verify(refresh_token);
+                DecodedJWT decodedJWT = Utility.decodeJwtToken(refresh_token);
                 String username = decodedJWT.getSubject();
                 log.info("User {} requests new access token using refresh token {}", username, refresh_token);
 
@@ -85,7 +84,7 @@ public class UserController {
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10*60*1000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
-                        .sign(algorithm);
+                        .sign(Utility.getAlgorithm());
 
                 log.info("New access_token was created for user {}: {}", user.getUsername(), access_token);
 
@@ -96,15 +95,7 @@ public class UserController {
                 new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 
             } catch (Exception exception) {
-                log.error("Error logging in: {}", exception.getMessage());
-                response.setHeader("error", exception.getMessage());
-                response.setStatus(FORBIDDEN.value());
-                //response.sendError(FORBIDDEN.value());
-
-                Map<String, String> error = new HashMap<>();
-                error.put("error_message", exception.getMessage());
-                response.setContentType(APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), error);
+                Utility.missingTokenExceptionHandling(exception, response);
             }
         } else {
             throw new RuntimeException("Refresh token is missing");
@@ -113,8 +104,3 @@ public class UserController {
 
 }
 
-@Data
-class RoleToUserForm {
-    private String username;
-    private String roleName;
-}
