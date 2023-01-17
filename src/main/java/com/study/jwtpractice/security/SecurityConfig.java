@@ -3,6 +3,7 @@ package com.study.jwtpractice.security;
 import com.study.jwtpractice.filter.CustomAuthenticationFilter;
 import com.study.jwtpractice.filter.CustomAuthorizationFilter;
 import com.study.jwtpractice.service.MyUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,7 +27,19 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    @Autowired
+    private AuthenticationConfiguration authenticationConfiguration;
+
+    @Autowired
+    CustomAuthenticationEntryPoint authEntryPoint;
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder, MyUserDetailsService userDetailService)
@@ -37,9 +51,6 @@ public class SecurityConfig {
                 .and()
                 .build();
     }
-
-    @Autowired
-    private AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -53,6 +64,7 @@ public class SecurityConfig {
         http.csrf().disable();
         http.cors();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
+        http.exceptionHandling().authenticationEntryPoint(authEntryPoint);
         http
                 .httpBasic().and()
                 .authorizeHttpRequests((requests) -> requests
@@ -60,7 +72,6 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/api/**").hasAnyRole("USER", "ADMIN", "SUPER")
                         .requestMatchers(POST,"/api/user/save", "/api/role/save", "/api/role/addtouser").hasRole("ADMIN")
                         .anyRequest().authenticated()
-
                 )
                 .formLogin()
                         .permitAll()

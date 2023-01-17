@@ -1,0 +1,83 @@
+
+----JWT Practice----
+
+What is JWT:
+It's a proposed Internet standard for creating data with optional signature and/or optional encryption
+whose payload holds JSON that asserts some number of claims.
+The tokens are signed either using a private secret or a public/private key.
+Consists of header (type, algorithm), payload (standard and custom claims), signature (optional. can't be forged)
+
+
+Reference video lesson: https://youtu.be/VVn9OG9nfH0
+
+Useful links:
+https://www.javaguides.net/2022/08/spring-security-without-webSecurityconfigureradapter.html
+https://www.toptal.com/spring/spring-security-tutorial
+https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
+https://jwt.io/
+
+
+Project Requirements:
+
+1) Create an API using Spring Boot. Include User and Role entities. Store them in MySQL database;
+2) Add Service with simple CRUD operations and Controller with some Get, Post, aтв Patch endpoints;
+4) Configure Login-based authentication (username and password for each user);
+5) Configure Role-based authorization (User can read data, Admin can create and edit data);
+
+6) Add JWT-token based authentication and authorization:
+    6.1) When signing-in, user receives access and refresh tokens.
+    6.2) Then user gets access to the resources using his token instead of login and password.
+    6.3) Also, token contains role information that is used for authorization.
+    6.4) When access token gets expired, it can be refreshed by requesting specific endpoint with the refresh token.
+
+7) Customize response messages for different authentication/authorization error cases.
+
+
+
+----Notes
+
+Used CommandLineRunner run() to initialize data at application start
+
+Configured the connection to MySQL database in application.properties
+
+spring.jpa.hibernate.ddl-auto=create - data will be removed from db when app is stopped
+
+Configured security without WebSecurityConfigurerAdapter because it's deprecated since Spring Security 5.7.
+It encouraged users to move towards a component-based security configuration.
+
+The components I needed in SecurityConfig class:
+
+    -- PasswordEncoder
+    Create a bean that returns BCryptPasswordEncoder
+
+    -- MyUserDetailsService implements UserDetailsService
+    Override loadUserByUsername method to return UserDetails filled with data about my users from db
+
+    -- AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder, MyUserDetailsService userDetailService)
+    set userDetailsService and passwordEncoder
+
+    --CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter
+    override attemptAuthentication method (set username and password to authenticationToken) - not sure why it is necessary
+    override successfulAuthentication (create access and refresh JWT tokens and add them to response)
+
+    --CustomAuthorizationFilter extends OncePerRequestFilter
+    override doFilterInternal method:
+    if this is not a login/ request, extract and decode token to get info about user and his roles
+    add this info to authenticationToken and set it to SecurityContextHolder
+
+    --SecurityFilterChain filterChain(HttpSecurity http)
+    configure security (some parts of the code and comments):
+        http.csrf().disable(); - can't send POST requests if enabled
+        http.sessionManagement().sessionCreationPolicy(STATELESS); - No session will be created or used by Spring Security
+        http.exceptionHandling().authenticationEntryPoint(authEntryPoint); - CustomAuthenticationEntryPoint for error messages
+        .httpBasic()
+        .authorizeHttpRequests - configured endpoints' accessibility
+        http.addFilter(new CustomAuthenticationFilter(authenticationManagerBean()));
+        http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    -- CustomAuthenticationEntryPoint implements AuthenticationEntryPoint
+    override method commence to manage custom authentication error messages
+
+    -- CorsFilter corsFilter()
+    todo: figure out if cors is needed for JWT security
+

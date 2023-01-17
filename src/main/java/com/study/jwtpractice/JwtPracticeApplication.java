@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @SpringBootApplication
 public class JwtPracticeApplication {
 
-	// reference video lesson: https://youtu.be/VVn9OG9nfH0
+	//JWT Notes.txt file contains main things to keep in mind about JWT
 
 	public static void main(String[] args) {
 		SpringApplication.run(JwtPracticeApplication.class, args);
@@ -38,8 +38,8 @@ public class JwtPracticeApplication {
 		};
 	}
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+//	@Bean
+//	PasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
+//	}
 }

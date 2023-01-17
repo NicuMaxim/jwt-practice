@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,7 +20,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository; // try to use @Autowire instead @RequiredArgsConstructor
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
 
     @Override
     public User saveUser(User user) {
